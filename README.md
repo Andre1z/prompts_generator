@@ -66,10 +66,10 @@ Puedes modificar y distribuir el código según tus necesidades.
 
 Autor:
 ------
-Desarrollado por [Andrei Buga]
+Desarrollado por Andrei Buga
 
 Contacto: bugaandrei1@gmail.com
 ---------
-Para cualquier consulta o sugerencia, puedes contactar a [Tu Correo Electrónico].
+Para cualquier consulta o sugerencia, puedes contactar a bugaandrei1@gmail.com.
 
 ¡Disfruta usando la aplicación y siéntete libre de contribuir!
