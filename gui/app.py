@@ -5,6 +5,7 @@ from ttkbootstrap.constants import *
 import os
 from config import APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, THEME_COLOR
 from utils.md_generator import generate_project_report, save_report_to_file
+from PIL import Image, ImageTk  # Para manejar imágenes
 
 class PromptApp:
     def __init__(self, root):
@@ -12,10 +13,22 @@ class PromptApp:
         self.root = root
         self.root.title(APP_NAME)
         self.root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
-        self.root.configure(bg=THEME_COLOR)
+        self.root.configure(bg=THEME_COLOR)  # Color de fondo definido
+
+        # Intentar cargar el logo como ícono de la aplicación
+        logo_path = os.path.join("assets", "icons", "logo.png")
+        if os.path.exists(logo_path):
+            logo = Image.open(logo_path)
+            logo = logo.resize((32, 32))  # Ajustar tamaño para ícono de ventana
+            self.icon = ImageTk.PhotoImage(logo)
+            self.root.iconphoto(True, self.icon)
+
+        # Crear un marco principal sin degradado
+        self.main_frame = ttk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # Sección principal con paneles
-        self.paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
+        self.paned = ttk.PanedWindow(self.main_frame, orient=tk.HORIZONTAL)
         self.paned.pack(fill=tk.BOTH, expand=True)
 
         # Panel izquierdo: formulario
@@ -58,7 +71,7 @@ class PromptApp:
         ttk.Label(self.frame_right, text="Salida del Prompt", font=("Arial", 12, "bold")).pack(anchor="w")
         self.txt_output = tk.Text(self.frame_right, wrap="word", state=tk.NORMAL)
         self.txt_output.pack(fill=tk.BOTH, expand=True)
-        
+
         frame_buttons = ttk.Frame(self.frame_right)
         frame_buttons.pack(fill=tk.X, pady=5)
         ttk.Button(frame_buttons, text="Copiar", command=self.copy_report).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
@@ -70,7 +83,7 @@ class PromptApp:
         if folder_selected:
             self.selected_folder = folder_selected
             project_report = generate_project_report(folder_selected)
-            
+
             self.txt_output.config(state=tk.NORMAL)
             self.txt_output.delete("1.0", tk.END)
             self.txt_output.insert(tk.END, project_report)
@@ -108,6 +121,7 @@ class PromptApp:
         """Permite al usuario elegir dónde guardar el reporte."""
         report_text = self.txt_output.get("1.0", tk.END)
         save_report_to_file(report_text)
+
 
 if __name__ == "__main__":
     root = ttk.Window(themename="flatly")
