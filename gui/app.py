@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from config import APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, THEME_COLOR
-from prompts.prompt_templates import get_prompt_template
+from prompts.prompt_templates import PROMPT_TEMPLATES, get_prompt_template
 from prompts.custom_prompts import get_custom_prompt, add_custom_prompt
 
 class PromptApp:
@@ -16,9 +16,10 @@ class PromptApp:
         self.label = tk.Label(root, text="Selecciona un tipo de prompt:", font=("Arial", 14), bg=THEME_COLOR, fg="white")
         self.label.pack(pady=10)
 
-        # Selector de prompt
-        self.prompt_type = tk.StringVar()
-        self.prompt_menu = tk.OptionMenu(root, self.prompt_type, *get_prompt_template("").keys())
+        # Selector de prompt corregido
+        self.prompt_type = tk.StringVar(root)
+        self.prompt_type.set(next(iter(PROMPT_TEMPLATES)))  # Establecer valor por defecto
+        self.prompt_menu = tk.OptionMenu(root, self.prompt_type, *PROMPT_TEMPLATES.keys())
         self.prompt_menu.pack(pady=10)
 
         # Botón para generar prompt
@@ -36,12 +37,12 @@ class PromptApp:
     def generate_prompt(self):
         """Genera un prompt basado en la selección del usuario."""
         prompt_type = self.prompt_type.get()
-        if prompt_type:
+        if prompt_type in PROMPT_TEMPLATES:
             prompt_text = get_prompt_template(prompt_type)
             self.prompt_output.delete("1.0", tk.END)
             self.prompt_output.insert(tk.END, prompt_text)
         else:
-            messagebox.showwarning("Advertencia", "Selecciona un tipo de prompt.")
+            messagebox.showwarning("Advertencia", "Selecciona un tipo de prompt válido.")
 
     def save_prompt(self):
         """Guarda un prompt personalizado."""

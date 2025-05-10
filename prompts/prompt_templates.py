@@ -18,8 +18,9 @@ def get_prompt_template(tipo, **kwargs):
     :param kwargs: Valores a reemplazar en la plantilla.
     :return: Prompt estructurado.
     """
-    template = PROMPT_TEMPLATES.get(tipo, "Tipo de prompt no encontrado.")
-    return template.format(**kwargs)
+    if tipo in PROMPT_TEMPLATES:
+        return PROMPT_TEMPLATES[tipo].format(**kwargs)
+    return "Tipo de prompt no encontrado."
 
 # Ejemplo de uso
 if __name__ == "__main__":
