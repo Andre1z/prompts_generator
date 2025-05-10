@@ -65,7 +65,7 @@ class PromptApp:
         ttk.Button(frame_buttons, text="Guardar", command=self.save_report).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
 
     def select_project_folder(self):
-        """Permite seleccionar una carpeta y muestra su estructura en pantalla sin guardarla automáticamente."""
+        """Permite seleccionar una carpeta y muestra su estructura y código en pantalla sin guardarlo automáticamente."""
         folder_selected = filedialog.askdirectory(title="Selecciona la carpeta del proyecto")
         if folder_selected:
             self.selected_folder = folder_selected
@@ -76,7 +76,7 @@ class PromptApp:
             self.txt_output.insert(tk.END, project_report)
             self.txt_output.config(state=tk.DISABLED)
 
-            messagebox.showinfo("Éxito", "Estructura del proyecto generada correctamente.")
+            messagebox.showinfo("Éxito", "Estructura y código del proyecto generados correctamente.")
         else:
             messagebox.showwarning("Advertencia", "No se seleccionó ninguna carpeta.")
 
@@ -89,7 +89,7 @@ class PromptApp:
         prompt += f"Formato de salida: {self.txt_formato.get('1.0', tk.END).strip()}\n"
 
         if self.selected_folder:
-            prompt += "\n===== Project Structure =====\n"
+            prompt += "\n===== Project Structure & Code =====\n"
             prompt += generate_project_report(self.selected_folder)
 
         self.txt_output.config(state=tk.NORMAL)
