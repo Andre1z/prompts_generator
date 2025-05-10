@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 def get_project_structure(directory, indent=0):
     """Genera la estructura de la carpeta en formato Markdown."""
@@ -13,23 +13,25 @@ def get_project_structure(directory, indent=0):
             markdown_content += get_project_structure(item_path, indent + 4)  # Aumentar indentación
     return markdown_content
 
-def select_folder_and_generate_prompt():
-    """Permite al usuario seleccionar una carpeta y genera un archivo Markdown con su estructura."""
-    root = tk.Tk()
-    root.withdraw()  # Ocultar la ventana principal
-    folder_selected = filedialog.askdirectory(title="Selecciona la carpeta del proyecto")
+def generate_project_report(directory):
+    """Genera un reporte en Markdown sin guardarlo automáticamente."""
+    if not directory:
+        return "No se ha seleccionado una carpeta."
 
-    if folder_selected:
-        markdown_prompt = f"# Estructura del Proyecto\n\n```\n{get_project_structure(folder_selected)}\n```"
-        save_path = os.path.join(folder_selected, "project_structure.md")
-        
-        with open(save_path, "w", encoding="utf-8") as file:
-            file.write(markdown_prompt)
-        
-        print(f"Prompt generado y guardado en: {save_path}")
-    else:
-        print("No se seleccionó ninguna carpeta.")
+    markdown_report = f"# Estructura del Proyecto\n\n```\n{get_project_structure(directory)}\n```"
+    return markdown_report
 
-# Ejemplo de uso
-if __name__ == "__main__":
-    select_folder_and_generate_prompt()
+def save_report_to_file(report_text):
+    """Permite al usuario elegir dónde guardar el archivo de reporte."""
+    file_path = filedialog.asksaveasfilename(
+        title="Guardar reporte",
+        defaultextension=".md",
+        filetypes=[("Markdown Files", "*.md"), ("Text Files", "*.txt"), ("All Files", "*.*")]
+    )
+    if file_path:
+        try:
+            with open(file_path, "w", encoding="utf-8") as file:
+                file.write(report_text)
+            messagebox.showinfo("Éxito", f"Reporte guardado en:\n{file_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar el reporte: {e}")

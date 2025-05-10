@@ -4,7 +4,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import os
 from config import APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, THEME_COLOR
-from utils.md_generator import select_folder_and_generate_prompt
+from utils.md_generator import generate_project_report, save_report_to_file
 
 class PromptApp:
     def __init__(self, root):
@@ -27,6 +27,9 @@ class PromptApp:
         self.frame_right = ttk.Frame(self.paned, padding=10)
         self.paned.add(self.frame_right, weight=1)
         self._create_output_section()
+
+        # Variable para almacenar la carpeta seleccionada
+        self.selected_folder = None
 
     def _create_form_section(self):
         """Crea la sección del formulario en la interfaz."""
@@ -53,7 +56,7 @@ class PromptApp:
     def _create_output_section(self):
         """Crea la sección de salida del prompt."""
         ttk.Label(self.frame_right, text="Salida del Prompt", font=("Arial", 12, "bold")).pack(anchor="w")
-        self.txt_output = tk.Text(self.frame_right, wrap="word", state=tk.DISABLED)
+        self.txt_output = tk.Text(self.frame_right, wrap="word", state=tk.NORMAL)
         self.txt_output.pack(fill=tk.BOTH, expand=True)
         
         frame_buttons = ttk.Frame(self.frame_right)
@@ -62,17 +65,32 @@ class PromptApp:
         ttk.Button(frame_buttons, text="Guardar", command=self.save_report).pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
 
     def select_project_folder(self):
-        """Permite seleccionar una carpeta y genera su estructura en Markdown."""
-        select_folder_and_generate_prompt()
-        messagebox.showinfo("Éxito", "Estructura de proyecto en Markdown generada correctamente.")
+        """Permite seleccionar una carpeta y muestra su estructura en pantalla sin guardarla automáticamente."""
+        folder_selected = filedialog.askdirectory(title="Selecciona la carpeta del proyecto")
+        if folder_selected:
+            self.selected_folder = folder_selected
+            project_report = generate_project_report(folder_selected)
+            
+            self.txt_output.config(state=tk.NORMAL)
+            self.txt_output.delete("1.0", tk.END)
+            self.txt_output.insert(tk.END, project_report)
+            self.txt_output.config(state=tk.DISABLED)
+
+            messagebox.showinfo("Éxito", "Estructura del proyecto generada correctamente.")
+        else:
+            messagebox.showwarning("Advertencia", "No se seleccionó ninguna carpeta.")
 
     def generate_prompt(self):
-        """Genera un prompt basado en los datos ingresados."""
-        prompt = "Crea/modifica un software en base a los parámetros indicados:\n\n"
+        """Genera un prompt basado en los datos ingresados y la estructura del proyecto."""
+        prompt = "Crea / modifica un software informático en base a los parámetros que a continuación te voy a indicar:\n\n"
         prompt += f"Contexto: {self.txt_contexto.get('1.0', tk.END).strip()}\n"
         prompt += f"Objetivo: {self.txt_objetivo.get('1.0', tk.END).strip()}\n"
         prompt += f"Restricciones: {self.txt_restricciones.get('1.0', tk.END).strip()}\n"
         prompt += f"Formato de salida: {self.txt_formato.get('1.0', tk.END).strip()}\n"
+
+        if self.selected_folder:
+            prompt += "\n===== Project Structure =====\n"
+            prompt += generate_project_report(self.selected_folder)
 
         self.txt_output.config(state=tk.NORMAL)
         self.txt_output.delete("1.0", tk.END)
@@ -87,13 +105,9 @@ class PromptApp:
         messagebox.showinfo("Portapapeles", "Reporte copiado al portapapeles.")
 
     def save_report(self):
-        """Guarda el prompt generado en un archivo de texto."""
+        """Permite al usuario elegir dónde guardar el reporte."""
         report_text = self.txt_output.get("1.0", tk.END)
-        file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
-        if file_path:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(report_text)
-            messagebox.showinfo("Guardar Reporte", f"Reporte guardado en:\n{file_path}")
+        save_report_to_file(report_text)
 
 if __name__ == "__main__":
     root = ttk.Window(themename="flatly")
